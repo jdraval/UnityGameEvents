@@ -1,0 +1,23 @@
+{
+    "name": "com.c4captain.gameevents",
+    "version": "1.0.0",
+    "displayName": "C4Captain Game Events",
+    "description": "A lightweight, allocation-free, mobile-optimized event system for Unity. Designed with DRY and KISS principles and built for performance-sensitive games.",
+    "unity": "2021.3",
+    "unityRelease": "0f1",
+    "author": {
+        "name": "C4Captain",
+        "email": "support@c4captain.com",
+        "url": "https://github.com/c4captain"
+    },
+    "keywords": [
+        "unity",
+        "events",
+        "eventbus",
+        "architecture",
+        "mobile",
+        "performance",
+        "game-development"
+    ],
+    "license": "MIT"
+}
