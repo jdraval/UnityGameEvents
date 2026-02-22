@@ -27,8 +27,9 @@ namespace GameEvents.Examples
     /// <summary>
     /// Example event fired when the score changes.
     /// Shows a minimal event with a single data field.
+    /// Implemented as a struct for zero heap allocation (high-frequency friendly).
     /// </summary>
-    public class ScoreChangedEvent : BaseGameEvent
+    public struct ScoreChangedEvent : IGameEvent
     {
         /// <summary>The updated score value.</summary>
         public int NewScore;
