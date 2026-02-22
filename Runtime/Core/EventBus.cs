@@ -3,67 +3,66 @@ using System;
 namespace GameEvents
 {
     /// <summary>
-    /// A static helper class that provides convenient shorthand access to the event system.
-    /// All methods delegate to <see cref="GameEventsManager.Instance"/> which owns the
-    /// actual event registry and logic.
-    /// <para>
-    /// Use this class for quick, fire-and-forget event calls from anywhere in your code.
-    /// The underlying <see cref="GameEventsManager"/> is created automatically via lazy
-    /// singleton if it does not already exist in the scene.
-    /// </para>
+    /// Static facade for the event system. All methods delegate to <see cref="TypedEventBus{T}"/>
+    /// which uses per-type static storage (no Dictionary lookup). Ensures <see cref="GameEventsManager"/>
+    /// exists for lifecycle cleanup when the manager is destroyed.
     /// </summary>
     public static class EventBus
     {
         /// <summary>
         /// Subscribes a callback to be invoked whenever an event of type <typeparamref name="T"/> is published.
-        /// Delegates to <see cref="GameEventsManager.Subscribe{T}"/>.
         /// </summary>
-        /// <typeparam name="T">The event type to listen for. Must derive from <see cref="BaseGameEvent"/>.</typeparam>
-        /// <param name="callback">The method to invoke when the event is published.</param>
-        public static void Subscribe<T>(Action<T> callback) where T : BaseGameEvent
+        public static void Subscribe<T>(Action<T> callback) where T : IGameEvent
         {
-            GameEventsManager.Instance?.Subscribe(callback);
+            TypedEventBus<T>.Subscribe(callback);
+        }
+
+        /// <summary>
+        /// Subscribes a parameterless callback. Use when the handler does not need the event payload.
+        /// </summary>
+        public static void Subscribe<T>(Action callback) where T : IGameEvent
+        {
+            TypedEventBus<T>.Subscribe(callback);
         }
 
         /// <summary>
         /// Removes a previously registered callback for event type <typeparamref name="T"/>.
-        /// Delegates to <see cref="GameEventsManager.Unsubscribe{T}"/>.
         /// </summary>
-        /// <typeparam name="T">The event type to stop listening for.</typeparam>
-        /// <param name="callback">The callback to remove.</param>
-        public static void Unsubscribe<T>(Action<T> callback) where T : BaseGameEvent
+        public static void Unsubscribe<T>(Action<T> callback) where T : IGameEvent
         {
-            GameEventsManager.Instance?.Unsubscribe(callback);
+            TypedEventBus<T>.Unsubscribe(callback);
+        }
+
+        /// <summary>
+        /// Removes a previously registered parameterless callback.
+        /// </summary>
+        public static void Unsubscribe<T>(Action callback) where T : IGameEvent
+        {
+            TypedEventBus<T>.Unsubscribe(callback);
         }
 
         /// <summary>
         /// Publishes an event instance to all subscribers of type <typeparamref name="T"/>.
-        /// Delegates to <see cref="GameEventsManager.Publish{T}"/>.
         /// </summary>
-        /// <typeparam name="T">The event type being published.</typeparam>
-        /// <param name="gameEvent">The event instance containing the event data.</param>
-        public static void Publish<T>(T gameEvent) where T : BaseGameEvent
+        public static void Publish<T>(T gameEvent) where T : IGameEvent
         {
-            GameEventsManager.Instance?.Publish(gameEvent);
+            TypedEventBus<T>.Publish(gameEvent);
         }
 
         /// <summary>
         /// Removes all subscribers for a specific event type.
-        /// Delegates to <see cref="GameEventsManager.Clear{T}"/>.
         /// </summary>
-        /// <typeparam name="T">The event type whose subscribers should be cleared.</typeparam>
-        public static void Clear<T>() where T : BaseGameEvent
+        public static void Clear<T>() where T : IGameEvent
         {
-            GameEventsManager.Instance?.Clear<T>();
+            TypedEventBus<T>.Clear();
         }
 
         /// <summary>
-        /// Removes all subscribers for every event type.
-        /// Delegates to <see cref="GameEventsManager.ClearAll"/>.
+        /// Removes all subscribers for every event type. Also called by <see cref="GameEventsManager.OnDestroy"/>.
         /// </summary>
         public static void ClearAll()
         {
-            GameEventsManager.Instance?.ClearAll();
+            EventBusRegistry.ClearAll();
         }
     }
 }
